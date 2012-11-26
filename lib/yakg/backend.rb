@@ -53,7 +53,12 @@ class Yakg
                     [:pointer, :pointer, :uint32, :string], :uint32)
 
     attach_function(:SecKeychainSearchCreateFromAttributes,
-                    [:pointer, :string, :pointer, :pointer], :uint32)
+                    [:pointer, :uint32, :pointer, :pointer], :uint32)
+    attach_function(:SecKeychainSearchCopyNext,
+                    [:pointer, :pointer], :uint32)
+    attach_function(:SecKeychainItemCopyAttributesAndData,
+                    [:pointer, :pointer, :pointer, :pointer,
+                     :pointer, :pointer], :uint32)
 
     def self.error_message code
       CF::String.new(SecCopyErrorMessageString(code, NULL)).to_s
@@ -110,6 +115,91 @@ class Yakg
         CFRelease item_ref.read_pointer
       end
       true
+    end
+
+    class SecKeychainAttributeList < FFI::Struct
+      layout(:count, :uint32,
+             :attr, :pointer)
+    end
+
+    def self.s2i s
+      s.unpack("N")[0].to_i
+    end
+    
+    enum :SecItemAttr, [:kSecCreatiofnDateItemAttr, s2i('cdat'),
+                        :kSecModDateItemAttr, s2i('mdat'),
+                        :kSecDescriptionItemAttr, s2i('desc'),
+                        :kSecCommentItemAttr, s2i('icmt'),
+                        :kSecCreatorItemAttr, s2i('crtr'),
+                        :kSecTypeItemAttr, s2i('type'),
+                        :kSecScriptCodeItemAttr, s2i('scrp'),
+                        :kSecLabelItemAttr, s2i('labl'),
+                        :kSecInvisibleItemAttr, s2i('invi'),
+                        :kSecNegativeItemAttr, s2i('nega'),
+                        :kSecCustomIconItemAttr, s2i('cusi'),
+                        :kSecAccountItemAttr, s2i('acct'),
+                        :kSecServiceItemAttr, s2i('svce'),
+                        :kSecGenericItemAttr, s2i('gena'),
+                        :kSecSecurityDomainItemAttr, s2i('sdmn'),
+                        :kSecServerItemAttr, s2i('srvr'),
+                        :kSecAuthenticationTypeItemAttr, s2i('atyp'),
+                        :kSecPortItemAttr, s2i('port'),
+                        :kSecPathItemAttr, s2i('path'),
+                        :kSecVolumeItemAttr, s2i('vlme'),
+                        :kSecAddressItemAttr, s2i('addr'),
+                        :kSecSignatureItemAttr, s2i('ssig'),
+                        :kSecProtocolItemAttr, s2i('ptcl'),
+                        :kSecCertificateType, s2i('ctyp'),
+                        :kSecCertificateEncoding, s2i('cenc'),
+                        :kSecCrlType, s2i('crtp'),
+                        :kSecCrlEncoding, s2i('crnc'),
+                        :kSecAlias, s2i('alis')
+                       ]
+    
+    class SecKeychainAttribute < FFI::Struct
+      layout(:tag, :SecItemAttr,
+             :length, :uint32,
+             :data, :pointer)
+    end
+
+    
+    def self.list acct
+      search_ref = FFI::MemoryPointer.new :pointer
+      found_item = FFI::MemoryPointer.new :pointer
+      found_attr_list = FFI::MemoryPointer.new :pointer
+      attr = SecKeychainAttribute.new
+      #attr[:tag] = 1633903476
+      attr[:tag] = s2i "acct"
+      attr[:length] = acct.length
+      attr[:data] = FFI::MemoryPointer.from_string(acct)
+      
+      attr_list = SecKeychainAttributeList.new
+      attr_list[:count] = 1
+      attr_list[:attr] = attr.pointer
+
+      #raise "#{"acct".unpack("N")[0].to_i} vs 1633903476"
+      #raise "#{"genp".unpack("N")[0].to_i} vs 1734700656"
+      
+      raise_error? SecKeychainSearchCreateFromAttributes(NULL,
+                                                         s2i("genp"),
+                                                         NULL,
+                                                         search_ref)
+
+      i = 0
+      while i < 5000 do
+        retval = SecKeychainSearchCopyNext(search_ref.read_pointer,
+                                           found_item)
+        break if retval == 4294941996
+        raise_error? retval
+
+        raise_error? SecKeychainItemCopyAttributesAndData(found_item.read_pointer,
+                                                          NULL, NULL,
+                                                          found_attr_list,
+                                                          NULL, NULL)
+        
+        i += 1
+      end
+      i
     end
     
   end

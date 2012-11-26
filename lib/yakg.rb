@@ -18,7 +18,7 @@ class Yakg
   end
 
   def self.list svc=@@DEFAULT_SERVICE_NAME
-    
+    Backend.list svc
   end
   
 end
