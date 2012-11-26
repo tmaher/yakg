@@ -4,16 +4,6 @@ require "corefoundation"
 
 class Yakg
   module Backend
-    #require "dl/import"
-    #extend DL::Importer
-
-    #dlload "/System/Library/Frameworks/Security.framework/Versions/A/Security"
-
-    #typealias "CFTypeRef", "const void *"
-    #typealias "OSStatus", "int"
-    #typealias "UInt32", "unsigned int"
-    
-    #extern "OSStatus SecKeychainFindGenericPassword(CFTypeRef, UInt32, const char *, UInt32, const char *, UInt32 *, void **, void *)"
 
     def self.framework name
       "/System/Library/Frameworks/#{name}.framework/#{name}"
@@ -184,8 +174,6 @@ class Yakg
       acct_info[:format] = FFI::MemoryPointer.new :uint32
       acct_info[:format].write_array_of_int [0]
       
-      #attr[:tag] = 1633903476
-
       svc_attr[:tag] = s2i "svce"
       svc_attr[:length] = svc.length
       svc_attr[:data] = FFI::MemoryPointer.from_string(svc)
@@ -194,18 +182,13 @@ class Yakg
       search_attr_list[:count] = 1
       search_attr_list[:attr] = svc_attr.pointer
       
-      #raise "#{"acct".unpack("N")[0].to_i} vs 1633903476"
-      #raise "#{"genp".unpack("N")[0].to_i} vs 1734700656"
-      # raise "#{s2i "svce"} vs 1937138533"
-      
       raise_error? SecKeychainSearchCreateFromAttributes(NULL,
                                                          s2i("genp"),
                                                          search_attr_list,
                                                          search_ref)
 
-      i = 0
       acct_names = []
-      while i < 5000 do
+      while true
         retval = SecKeychainSearchCopyNext(search_ref.read_pointer,
                                            found_item)
         # the magic "no more items" number
@@ -224,8 +207,6 @@ class Yakg
         next if a[:tag] != :kSecAccountItemAttr
 
         acct_names.push a[:data].get_string(0, a[:length])
-        
-        i += 1
       end
 
       raise_error? SecKeychainItemFreeAttributesAndData(found_attr_list.read_pointer,
