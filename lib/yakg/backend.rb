@@ -49,6 +49,8 @@ class Yakg
     attach_function(:SecCopyErrorMessageString, [:uint32, :pointer],
                     :pointer)
 
+    attach_function(:SecKeychainItemModifyContent,
+                    [:pointer, :pointer, :uint32, :string], :uint32)
 
     def self.error_message code
       CF::String.new(SecCopyErrorMessageString(code, NULL)).to_s
@@ -88,13 +90,23 @@ class Yakg
     end
 
     def self.set acct, value, svc
-      raise_error? SecKeychainAddGenericPassword(NULL, svc.length, svc,
-                                                 acct.length, acct,
-                                                 value.length, value, NULL)
+      pw_length = FFI::MemoryPointer.new :uint32
+      pw_val = FFI::MemoryPointer.new :pointer
+      item_ref = FFI::MemoryPointer.new :pointer
+      retval = SecKeychainFindGenericPassword(NULL, svc.length, svc,
+                                              acct.length, acct,
+                                              pw_length, pw_val, item_ref)
+      if retval != 0
+        raise_error? SecKeychainAddGenericPassword(NULL, svc.length, svc,
+                                                   acct.length, acct,
+                                                   value.length, value, NULL)
+      else
+        raise_error? SecKeychainItemFreeContent(NULL, pw_val.read_pointer)
+        raise_error? SecKeychainItemModifyContent(item_ref.read_pointer, NULL,
+                                                  value.length, value)
+        CFRelease item_ref.read_pointer
+      end
       true
-    end
-
-    def self.update acct, value, svc
     end
     
   end

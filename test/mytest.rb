@@ -10,7 +10,10 @@ Yakg.DEFAULT_SERVICE_NAME = "yakg-test"
 puts Yakg.get "somekey"
 
 Yakg.set "otherkey", "s3kr1t"
-puts Yakg.get "otherkey"
+puts "otherkey set: #{Yakg.get "otherkey"}"
+
+Yakg.set "otherkey", "newbie"
+puts "otherkey update: #{Yakg.get "otherkey"}"
 
 Yakg.unset "otherkey"
 puts "deleted?: #{Yakg.get("otherkey").nil?}"
