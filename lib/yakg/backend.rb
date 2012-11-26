@@ -1,6 +1,6 @@
 # https://developer.apple.com/library/mac/#documentation/security/Reference/keychainservices/Reference/reference.html
-
 require "ffi"
+require "corefoundation"
 
 class Yakg
   module Backend
@@ -17,6 +17,9 @@ class Yakg
 
     def self.framework name
       "/System/Library/Frameworks/#{name}.framework/#{name}"
+    end
+
+    class KeychainError < Exception
     end
 
     extend FFI::Library
@@ -46,38 +49,27 @@ class Yakg
     attach_function(:SecCopyErrorMessageString, [:uint32, :pointer],
                     :pointer)
 
-    attach_function(:CFStringGetLength, [:pointer], :int64)
-    attach_function(:CFStringGetCString,
-                    [:pointer, :pointer, :long, :uint32], :bool)
 
     def self.error_message code
-      msg_cf_ref = SecCopyErrorMessageString(code, NULL)
-      #return msg_cf_ref.methods
-      #CFStringGetLength(msg_cf_ref)
-      #return msg_cf_ref.read_pointer.to_i
+      CF::String.new(SecCopyErrorMessageString(code, NULL)).to_s
+    end
 
-      # utf-8 chars are guaranteed to be <= 4 bytes
-      # 0x08000100 is the apple magic number for UTF-8 encoding
-      c_buffer = malloc(400)
-      CFStringGetCString(msg_cf_ref.read_pointer,
-                         c_buffer.read_pointer,
-                         400, 0x08000100)
-      retstring = c_buffer.read_string
-      free c_buffer.read_pointer
-      retstring
+    def self.raise_error? code
+      raise KeychainError.new(error_message code) if code != 0
+      code
     end
     
     def self.delete acct, svc
       pw_length = FFI::MemoryPointer.new :uint32
       pw_val = FFI::MemoryPointer.new :pointer
       item_ref = FFI::MemoryPointer.new :pointer
-      retval = SecKeychainFindGenericPassword(NULL, svc.length, svc,
-                                              acct.length, acct,
-                                              pw_length, pw_val,
-                                              item_ref)
-      SecKeychainItemFreeContent(NULL, pw_val.read_pointer)
-      SecKeychainItemDelete(item_ref.read_pointer)
-      puts error_message(-25294)
+      raise_error? SecKeychainFindGenericPassword(NULL, svc.length, svc,
+                                                  acct.length, acct,
+                                                  pw_length, pw_val,
+                                                  item_ref)
+      raise_error? SecKeychainItemFreeContent(NULL, pw_val.read_pointer)
+      raise_error? SecKeychainItemDelete(item_ref.read_pointer)
+      puts "msg: '#{error_message(-25294)}'"
       CFRelease item_ref.read_pointer
     end
 
@@ -87,19 +79,23 @@ class Yakg
       retval = SecKeychainFindGenericPassword(NULL, svc.length, svc,
                                               acct.length, acct,
                                               pw_length, pw_val, NULL)
-      return nil unless retval == 0
+      return nil unless 0 == retval
       pw = pw_val.read_pointer.read_string(pw_length.read_int)
-      reval = SecKeychainItemFreeContent(NULL, pw_val.read_pointer)
-      return nil unless retval == 0
+      retval = SecKeychainItemFreeContent(NULL, pw_val.read_pointer)
+      return nil unless 0 == retval
+
       pw
     end
 
     def self.set acct, value, svc
-      SecKeychainAddGenericPassword(NULL, svc.length, svc,
-                                    acct.length, acct,
-                                    value.length, value, NULL)
+      raise_error? SecKeychainAddGenericPassword(NULL, svc.length, svc,
+                                                 acct.length, acct,
+                                                 value.length, value, NULL)
+      true
     end
 
+    def self.update acct, value, svc
+    end
     
   end
 end

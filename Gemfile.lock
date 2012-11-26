@@ -1,8 +1,15 @@
+GIT
+  remote: https://github.com/tmaher/corefoundation.git
+  revision: 73a97c6e7d268d21d17f671c94e98185153c5e3f
+  specs:
+    corefoundation (0.1.4)
+      ffi
+
 GEM
   remote: https://rubygems.org/
   specs:
     excon (0.16.10)
-    ffi (1.1.5)
+    ffi (1.2.0)
     highline (1.6.15)
     woof_util (0.0.13)
       excon (~> 0.16.10)
@@ -12,5 +19,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  corefoundation!
   ffi
   woof_util
