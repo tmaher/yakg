@@ -1,10 +1,15 @@
 require 'spec_helper'
 
 describe Yakg do
-  pw_name = SecureRandom.hex(4)
-  pw_value = SecureRandom.hex(4)
+  pw_name = SecureRandom.hex 4
+  pw_value = SecureRandom.hex 4
   new_pw_name = SecureRandom.hex 4
 
+  it "pre-nukes everything" do
+    Yakg.list.each {|x| Yakg.unset x }
+    Yakg.list.should eq []
+  end
+  
   it "confirms nonexistent keys are nil" do
     Yakg.get(pw_name).should be_nil
   end
@@ -20,7 +25,7 @@ describe Yakg do
   end
   
   it "can update keys" do
-    new_pw_value = SecureRandom.hex(4)
+    new_pw_value = SecureRandom.hex 4
     Yakg.set(pw_name, new_pw_value).should be_true
     Yakg.get(pw_name).should eq new_pw_value
   end

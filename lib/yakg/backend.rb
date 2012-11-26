@@ -59,6 +59,8 @@ class Yakg
     attach_function(:SecKeychainItemCopyAttributesAndData,
                     [:pointer, :pointer, :pointer, :pointer,
                      :pointer, :pointer], :uint32)
+    attach_function(:SecKeychainItemFreeAttributesAndData,
+                    [:pointer, :pointer], :uint32)
 
     def self.error_message code
       CF::String.new(SecCopyErrorMessageString(code, NULL)).to_s
@@ -216,13 +218,20 @@ class Yakg
                                                           found_attr_list,
                                                           NULL, NULL)
         f = SecKeychainAttributeList.new found_attr_list.read_pointer
-        next unless f[:count] == 1
+        next if f[:count] != 1
+
         a = SecKeychainAttribute.new f[:attr]
-        next unless a[:tag] == :kSecAccountItemAttr
+        next if a[:tag] != :kSecAccountItemAttr
+
         acct_names.push a[:data].get_string(0, a[:length])
         
         i += 1
       end
+
+      raise_error? SecKeychainItemFreeAttributesAndData(found_attr_list.read_pointer,
+                                                        NULL)
+      CFRelease search_ref.read_pointer
+      
       acct_names
     end
     
