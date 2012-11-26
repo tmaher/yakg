@@ -4,5 +4,10 @@ srcdir = File.realpath "#{__FILE__}/../../"
 require "#{srcdir}/lib/yakg"
 
 Yakg.DEFAULT_SERVICE_NAME = "yakg-test"
-Yakg.set "somekey", "someval"
 puts Yakg.get "somekey"
+
+Yakg.set "otherkey", "s3kr1t"
+puts Yakg.get "otherkey"
+
+Yakg.unset "otherkey"
+puts "deleted?: #{Yakg.get("otherkey").nil?}"

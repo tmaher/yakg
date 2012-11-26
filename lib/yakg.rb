@@ -6,6 +6,7 @@ class Yakg
   def self.DEFAULT_SERVICE_NAME ; @@DEFAULT_SERVICE_NAME; end
   
   def self.set acct, value, svc=@@DEFAULT_SERVICE_NAME
+    Backend.set acct, value, svc
   end
 
   def self.get acct, svc=@@DEFAULT_SERVICE_NAME
@@ -13,6 +14,7 @@ class Yakg
   end
 
   def self.unset acct, svc=@@DEFAULT_SERVICE_NAME
+    Backend.delete acct, svc
   end
 
   def self.list svc=@@DEFAULT_SERVICE_NAME

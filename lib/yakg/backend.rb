@@ -31,6 +31,26 @@ class Yakg
                      :pointer, :pointer, :pointer],
                     :uint32)
 
+    attach_function(:SecKeychainAddGenericPassword,
+                    [:pointer, :uint32, :string, :uint32, :string,
+                     :uint32, :pointer, :pointer],
+                    :uint32)
+
+    attach_function(:SecKeychainItemDelete, [:pointer], :uint32)
+    
+    def self.delete acct, svc
+      pw_length = FFI::MemoryPointer.new :uint32
+      pw_val = FFI::MemoryPointer.new :pointer
+      item_ref = FFI::MemoryPointer.new :pointer
+      retval = SecKeychainFindGenericPassword(NULL, svc.length, svc,
+                                              acct.length, acct,
+                                              pw_length, pw_val,
+                                              item_ref)
+      SecKeychainItemFreeContent(NULL, pw_val.read_pointer)
+      SecKeychainItemDelete(item_ref.read_pointer)
+      
+    end
+
     def self.get acct, svc
       pw_length = FFI::MemoryPointer.new :uint32
       pw_val = FFI::MemoryPointer.new :pointer
@@ -45,8 +65,11 @@ class Yakg
     end
 
     def self.set acct, value, svc
-      
+      SecKeychainAddGenericPassword(NULL, svc.length, svc,
+                                    acct.length, acct,
+                                    value.length, value, NULL)
     end
+
     
   end
 end
