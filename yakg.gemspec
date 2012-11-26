@@ -8,10 +8,11 @@ Gem::Specification.new do |s|
   s.description = "Use Ruby's DL mechanism to access the MacOS Keychain"
   s.authors = ["Tom Maher"]
   s.email = "tmaher@tursom.org"
-  s.files = []
-  File.find "lib" do |f|
-    s.files.push(f) if FileTest.file? f
-  end
+  s.files = `git ls-files`.split("\n")
   s.homepage = "https://github.com/tmaher/yakg"
+  s.add_dependency "ffi"
+  s.add_dependency "corefoundation"
+  s.add_development_dependency "woof_util"
+  s.add_development_dependency "rake"
+  s.add_development_dependency "rspec"
 end
-  

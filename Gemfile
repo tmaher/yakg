@@ -1,5 +1,4 @@
 source "https://rubygems.org"
 
-gem "woof_util"
-gem "ffi"
+gemspec
 gem "corefoundation", :git => "https://github.com/tmaher/corefoundation.git"

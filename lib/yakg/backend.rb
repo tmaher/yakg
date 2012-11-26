@@ -52,6 +52,9 @@ class Yakg
     attach_function(:SecKeychainItemModifyContent,
                     [:pointer, :pointer, :uint32, :string], :uint32)
 
+    attach_function(:SecKeychainSearchCreateFromAttributes,
+                    [:pointer, :string, :pointer, :pointer], :uint32)
+
     def self.error_message code
       CF::String.new(SecCopyErrorMessageString(code, NULL)).to_s
     end
@@ -71,8 +74,8 @@ class Yakg
                                                   item_ref)
       raise_error? SecKeychainItemFreeContent(NULL, pw_val.read_pointer)
       raise_error? SecKeychainItemDelete(item_ref.read_pointer)
-      puts "msg: '#{error_message(-25294)}'"
       CFRelease item_ref.read_pointer
+      true
     end
 
     def self.get acct, svc

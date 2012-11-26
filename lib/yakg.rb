@@ -1,6 +1,6 @@
-class Yakg
-  require "#{File.dirname __FILE__}/yakg/backend"
+require "yakg/backend"
 
+class Yakg
   @@DEFAULT_SERVICE_NAME = "ruby-yakg-gem"
   def self.DEFAULT_SERVICE_NAME= x; @@DEFAULT_SERVICE_NAME = x; end
   def self.DEFAULT_SERVICE_NAME ; @@DEFAULT_SERVICE_NAME; end
