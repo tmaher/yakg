@@ -2,6 +2,7 @@ GEM
   remote: https://rubygems.org/
   specs:
     excon (0.16.10)
+    ffi (1.1.5)
     highline (1.6.15)
     woof_util (0.0.13)
       excon (~> 0.16.10)
@@ -11,4 +12,5 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
+  ffi
   woof_util
