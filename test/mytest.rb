@@ -3,5 +3,6 @@
 srcdir = File.realpath "#{__FILE__}/../../"
 require "#{srcdir}/lib/yakg"
 
-Yakg.DEFAULT_SERVICE_NAME = "bob"
-puts Yakg.DEFAULT_SERVICE_NAME
+Yakg.DEFAULT_SERVICE_NAME = "yakg-test"
+Yakg.set "somekey", "someval"
+puts Yakg.get "somekey"
