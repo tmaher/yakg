@@ -3,8 +3,14 @@
 require "rubygems"
 require "bundler/setup"
 
-srcdir = File.expand_path "#{__FILE__}/../../"
-require "#{srcdir}/lib/yakg"
+#srcdir = File.expand_path "#{__FILE__}/../../"
+#require "#{srcdir}/lib/yakg"
+require "lib/yakg"
+
+Yakg.DEFAULT_SERVICE_NAME = "yakg-rspec"
+Yakg.list.each {|x| Yakg.unset x }
+
+exit 0
 
 Yakg.DEFAULT_SERVICE_NAME = "yakg-test"
 puts Yakg.get "somekey"

@@ -162,44 +162,68 @@ class Yakg
              :data, :pointer)
     end
 
+    class SecKeychainAttributeInfo < FFI::Struct
+      layout(:count, :uint32,
+             :tag, :pointer,
+             :format, :pointer)
+    end
+
     
-    def self.list acct
+    def self.list svc
       search_ref = FFI::MemoryPointer.new :pointer
       found_item = FFI::MemoryPointer.new :pointer
       found_attr_list = FFI::MemoryPointer.new :pointer
-      attr = SecKeychainAttribute.new
-      #attr[:tag] = 1633903476
-      attr[:tag] = s2i "acct"
-      attr[:length] = acct.length
-      attr[:data] = FFI::MemoryPointer.from_string(acct)
-      
-      attr_list = SecKeychainAttributeList.new
-      attr_list[:count] = 1
-      attr_list[:attr] = attr.pointer
+      svc_attr = SecKeychainAttribute.new
 
+      acct_info = SecKeychainAttributeInfo.new
+      acct_info[:count] = 1
+      acct_info[:tag] = FFI::MemoryPointer.new :uint32
+      acct_info[:tag].write_array_of_int [s2i("acct")]
+      acct_info[:format] = FFI::MemoryPointer.new :uint32
+      acct_info[:format].write_array_of_int [0]
+      
+      #attr[:tag] = 1633903476
+
+      svc_attr[:tag] = s2i "svce"
+      svc_attr[:length] = svc.length
+      svc_attr[:data] = FFI::MemoryPointer.from_string(svc)
+
+      search_attr_list = SecKeychainAttributeList.new
+      search_attr_list[:count] = 1
+      search_attr_list[:attr] = svc_attr.pointer
+      
       #raise "#{"acct".unpack("N")[0].to_i} vs 1633903476"
       #raise "#{"genp".unpack("N")[0].to_i} vs 1734700656"
+      # raise "#{s2i "svce"} vs 1937138533"
       
       raise_error? SecKeychainSearchCreateFromAttributes(NULL,
                                                          s2i("genp"),
-                                                         NULL,
+                                                         search_attr_list,
                                                          search_ref)
 
       i = 0
+      acct_names = []
       while i < 5000 do
         retval = SecKeychainSearchCopyNext(search_ref.read_pointer,
                                            found_item)
+        # the magic "no more items" number
         break if retval == 4294941996
         raise_error? retval
 
         raise_error? SecKeychainItemCopyAttributesAndData(found_item.read_pointer,
-                                                          NULL, NULL,
+                                                          acct_info,
+                                                          NULL,
                                                           found_attr_list,
                                                           NULL, NULL)
+        f = SecKeychainAttributeList.new found_attr_list.read_pointer
+        next unless f[:count] == 1
+        a = SecKeychainAttribute.new f[:attr]
+        next unless a[:tag] == :kSecAccountItemAttr
+        acct_names.push a[:data].get_string(0, a[:length])
         
         i += 1
       end
-      i
+      acct_names
     end
     
   end
