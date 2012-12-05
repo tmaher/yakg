@@ -65,3 +65,35 @@ irb(main):007:0> Yakg.list "awesome other service"
 => ["user1", "harry.bovik"]
 ```
 
+Technical Details
+=================
+
+This gem wrapps Apple's Security Framework (a C library) using the
+excellent `ffi` gem. References for the full Keychain Services API can
+be found at
+https://developer.apple.com/library/mac/#documentation/security/Reference/keychainservices/Reference/reference.html
+
+My views on the virtues of wrapping Security Framework and calling it
+from the Ruby process, as opposed to use of helper programs such as
+`git-password`, can be found at https://gist.github.com/4116645
+
+
+Related Work
+============
+
+* https://github.com/xli/mac-keychain also wraps Security Framework
+  but with RubyCocoa. That makes it more difficult to use with local
+  Ruby builds
+
+* https://github.com/seattlerb/osx_keychain uses RubyInline to call
+  into the underlying C library. That necessitates a C compiler.
+
+* https://github.com/jprichardson/keychain_manager shells out to call
+  the `security` CLI tool.  It's also less oriented around password
+  management, and more geared towards PKI.
+
+* https://github.com/fcheung/keychain also wraps Security Framework
+  with ffi.  It's far more feature-complete than Yakg, but I wanted a
+  more minimalist API. Both approaches absolutely have their place.
+  Yakg shares some code, specifically fcheung/corefoundation for error
+  message string handling, and I am indebted to Mr. Cheung for it.

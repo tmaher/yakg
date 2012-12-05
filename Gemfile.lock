@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/tmaher/corefoundation.git
-  revision: 73a97c6e7d268d21d17f671c94e98185153c5e3f
+  revision: e4cb21a7985577c44cd0aa8f9f17e9b6b6e09141
   specs:
     corefoundation (0.1.4)
       ffi
@@ -8,7 +8,7 @@ GIT
 PATH
   remote: .
   specs:
-    yakg (0.0.0)
+    yakg (0.0.1)
       corefoundation
       ffi
 
@@ -24,7 +24,7 @@ GEM
       rspec-core (~> 2.12.0)
       rspec-expectations (~> 2.12.0)
       rspec-mocks (~> 2.12.0)
-    rspec-core (2.12.0)
+    rspec-core (2.12.1)
     rspec-expectations (2.12.0)
       diff-lcs (~> 1.1.3)
     rspec-mocks (2.12.0)
