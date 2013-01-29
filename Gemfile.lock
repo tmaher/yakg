@@ -1,33 +1,29 @@
-GIT
-  remote: https://github.com/tmaher/corefoundation.git
-  revision: e4cb21a7985577c44cd0aa8f9f17e9b6b6e09141
-  specs:
-    corefoundation (0.1.4)
-      ffi
-
 PATH
   remote: .
   specs:
-    yakg (0.0.1)
+    yakg (0.0.2)
       corefoundation
       ffi
 
 GEM
   remote: https://rubygems.org/
   specs:
+    corefoundation (0.2.0)
+      ffi
     diff-lcs (1.1.3)
     excon (0.16.10)
-    ffi (1.2.0)
+    ffi (1.3.1)
     highline (1.6.15)
-    rake (10.0.2)
+    netrc (0.7.7)
+    rake (10.0.3)
     rspec (2.12.0)
       rspec-core (~> 2.12.0)
       rspec-expectations (~> 2.12.0)
       rspec-mocks (~> 2.12.0)
-    rspec-core (2.12.1)
-    rspec-expectations (2.12.0)
+    rspec-core (2.12.2)
+    rspec-expectations (2.12.1)
       diff-lcs (~> 1.1.3)
-    rspec-mocks (2.12.0)
+    rspec-mocks (2.12.2)
     woof_util (0.0.16)
       excon (~> 0.16.10)
       highline (~> 1.6.15)
@@ -36,7 +32,8 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  corefoundation!
+  corefoundation
+  netrc
   rake
   rspec
   woof_util
