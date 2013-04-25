@@ -1,7 +1,8 @@
 #!/bin/bash -x
 
-# default mac os path
-export PATH="/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/bin:/usr/local/sbin"
+if [ "x$1" = "appleruby" ]; then
+    export PATH="/usr/bin:/usr/sbin:/bin:/sbin:/usr/local/bin:/usr/local/sbin"
+fi
 DIR="$( cd "$( dirname "$0" )" && pwd )" ; cd $DIR
 
 if ! [ -r `basename $0 2>/dev/null` ]; then
@@ -10,6 +11,7 @@ if ! [ -r `basename $0 2>/dev/null` ]; then
 fi
 
 export RUBY_VERSION=`ruby --version | cut -d \  -f 2 | cut -d . -f 1-2`
+ruby --version
 
 if [ "x${RUBY_VERSION}" = "x" ]; then
     echo "FAIL!  can't figure out ruby version"
