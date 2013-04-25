@@ -1,9 +1,7 @@
 PATH
   remote: .
   specs:
-    yakg (0.0.2)
-      corefoundation
-      ffi
+    yakg (0.0.4)
 
 GEM
   remote: https://rubygems.org/
