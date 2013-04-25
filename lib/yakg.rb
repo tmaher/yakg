@@ -1,8 +1,9 @@
 class Yakg
   module Misc
+    rv = RUBY_VERSION.match(/^1.8/) ? "1.8" : "1.9.1"
     VENDOR_GEM_DIR =
       File.expand_path(File.join(File.dirname(__FILE__),
-                                 "..", "vendor", "gems", "ruby", "1.8"))
+                                 "..", "vendor", "gems", "ruby", rv))
   end
 end
 
