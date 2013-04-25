@@ -1,3 +1,11 @@
+class Yakg
+  module Misc
+    VENDOR_GEM_DIR =
+      File.expand_path(File.join(File.dirname(__FILE__),
+                                 "..", "vendor", "gems", "ruby", "1.8"))
+  end
+end
+
 require "yakg/backend"
 
 class Yakg
