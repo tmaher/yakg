@@ -9,12 +9,14 @@ if ! [ -r `basename $0 2>/dev/null` ]; then
     exit 1
 fi
 
-if [ -r ruby ] && ! [ -d ruby ]; then
-    echo "FAIL! ./ruby exists and is not a directory"
+export RUBY_VERSION=`ruby --version | cut -d \  -f 2 | cut -d . -f 1-2`
+
+if [ "x${RUBY_VERSION}" = "x" ]; then
+    echo "FAIL!  can't figure out ruby version"
     exit 2
 fi
 
-rm -rf Gemfile.lock ruby
+rm -rf Gemfile.lock "ruby/${RUBY_VERSION}"
 bundle install --path `pwd`
 
 FFI_C=`find ruby -type f -name ffi_c.bundle | head -n 1`
