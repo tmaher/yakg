@@ -10,8 +10,6 @@ Gem::Specification.new do |s|
   s.email = "tmaher@tursom.org"
   s.files = `git ls-files`.split("\n")
   s.homepage = "https://github.com/tmaher/yakg"
-  s.add_dependency "ffi"
-  s.add_dependency "corefoundation"
   s.add_development_dependency "woof_util"
   s.add_development_dependency "rake"
   s.add_development_dependency "rspec"
