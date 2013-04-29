@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    yakg (0.0.7)
+    yakg (0.0.8)
 
 GEM
   remote: https://rubygems.org/
