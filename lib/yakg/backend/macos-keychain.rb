@@ -68,10 +68,11 @@ class Yakg
         pw_length = FFI::MemoryPointer.new :uint32
         pw_val = FFI::MemoryPointer.new :pointer
         item_ref = FFI::MemoryPointer.new :pointer
-        raise_error? SecKeychainFindGenericPassword(NULL, svc.length, svc,
-                                                    acct.length, acct,
-                                                    pw_length, pw_val,
-                                                    item_ref)
+        retval = SecKeychainFindGenericPassword(NULL, svc.length, svc,
+                                                acct.length, acct,
+                                                pw_length, pw_val,
+                                                item_ref)
+        return nil unless 0 == retval
         raise_error? SecKeychainItemFreeContent(NULL, pw_val.read_pointer)
         raise_error? SecKeychainItemDelete(item_ref.read_pointer)
         CFRelease item_ref.read_pointer
