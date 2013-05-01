@@ -34,5 +34,9 @@ describe Yakg do
     Yakg.unset(pw_name).should be_true
     Yakg.get(pw_name).should be_nil
   end
+
+  it "has unset return nil for nonexistent keys" do
+    Yakg.unset(SecureRandom.hex(8)).should be_nil
+  end
   
 end
