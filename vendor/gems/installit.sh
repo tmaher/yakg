@@ -22,7 +22,7 @@ if echo ${RUBY_ABI_VERSION} 2>/dev/null | grep "^1\.8" 2>/dev/null; then
 elif echo ${RUBY_ABI_VERSION} 2>/dev/null | grep "^1\.9" 2>/dev/null; then
     export RUBY_ABI_VERSION=1.9.1
 elif echo ${RUBY_ABI_VERSION} 2>/dev/null | grep "^2\.0" 2>/dev/null; then
-    exort RUBY_ABI_VERSION=2.0.0
+    export RUBY_ABI_VERSION=2.0.0
 fi
 
 rm -rf Gemfile.lock "ruby/${RUBY_ABI_VERSION}"
