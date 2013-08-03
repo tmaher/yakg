@@ -13,7 +13,7 @@ Gem::Specification.new do |s|
   s.licenses = ["MIT"]
   s.require_paths = ["lib"]
   s.required_ruby_version = Gem::Requirement.new(">= 1.8.7")
-  s.rubygems_version = "2.0.0"
+  s.rubygems_version = "2.0.2"
   s.summary = "Ruby wrapper for OS X corefoundation"
 
   if s.respond_to? :specification_version then
