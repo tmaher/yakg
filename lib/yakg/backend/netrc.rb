@@ -2,7 +2,7 @@ require "netrc"
 
 class Yakg
   module Backend
-    module NetrcFallback
+    module Netrc
 
       def set acct, value, svc
         n = Netrc.read

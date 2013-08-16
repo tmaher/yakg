@@ -7,8 +7,15 @@ class Yakg
       require "yakg/backend/win32-dpapi"
       extend Yakg::Backend::Win32DPAPI
     else
-      require "yakg/backend/netrc-fallback"
-      extend Yakg::Backend::NetrcFallback
+      begin
+        require 'dbus'
+        DBus::SystemBus.instance
+        require "yakg/backend/secret_service"
+        extend Yakg::Backend::SecretService
+      rescue
+        require "yakg/backend/netrc"
+        extend Yakg::Backend::Netrc
+      end
     end
   end
 end
