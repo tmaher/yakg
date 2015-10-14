@@ -3,18 +3,22 @@
 export R18="system"
 export R191="1.9.3-p448"
 export R200="2.0.0-p195"
+export R210="2.1.7"
+export R210="2.2.3"
 
-export FFI_VER="1.9.0"
+export FFI_VER="1.9.10"
 
 export GEM_CMD="gem install --no-ri --no-rdoc ffi corefoundation"
 
-cd ${HOME}/heroku/yakg/vendor/gems/ruby && rm -rf *
-mkdir -p 1.8 x86_64/1.9.1 x86_64/2.0.0 i386/1.9.1 1.8 i386/2.0.0
+cd ${HOME}/src/yakg/vendor/gems/ruby && rm -rf *
+mkdir -p 1.8 x86_64/1.9.1 x86_64/2.0.0 x86_64/2.1.0 x86_64/2.2.0 \
+  i386/1.9.1 1.8 i386/2.0.0 i386/2.1.0 i386/2.2.0
 
 pushd ${HOME}/.rbenv/versions
-rm ${R191} ${R200}
-ln -sf x86_64-${R191} ${R191}
-ln -sf x86_64-${R200} ${R200}
+for VERS in ${R191} ${R200} ${R210} ${R220}; do
+  rm ${VERS}
+  ln -sf x86_64-${VERS} ${VERS}
+done
 popd
 
 echo ${R18} > ${HOME}/.rbenv/version

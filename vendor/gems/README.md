@@ -26,6 +26,26 @@ ffi_c.bundle recompilation notes
 ================================
 
 ```
+$ brew update; brew uninstall openssl
+$ brew install openssl --universal
+$ cd ~/.rbenv/
+$ mv versions stash_versions
+$ for RUBY_VERSION in 2.0.0-p247 2.1.7 2.2.3; do
+> CC="xcrun cc" CPP="xcrun cc -E" \
+    RUBY_CONFIGURE_OPTS="--with-arch=x86_64,i386 \
+    --with-openssl-dir=/usr/local/opt/openssl" \
+    rbenv install $RUBY_VERSION
+> rbenv global $RUBY_VERSION
+> gem install bundler
+> pushd ~/src/yakg
+> bundle install --path vendor
+> popd
+> done
+$ mv versions clean_universal_builds
+$ mv stash_versions versions 
+
+
+```
 $ rbenv global system
 $ ./installit.sh
 $ CC="xcrun cc" CPP="xcrun cc -E" \
