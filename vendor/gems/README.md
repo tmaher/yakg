@@ -30,40 +30,26 @@ $ brew update; brew uninstall openssl
 $ brew install openssl --universal
 $ cd ~/.rbenv/
 $ mv versions stash_versions
+$ cd ~/src/yakg
 $ for RUBY_VERSION in 2.0.0-p247 2.1.7 2.2.3; do
-> CC="xcrun cc" CPP="xcrun cc -E" \
-    RUBY_CONFIGURE_OPTS="--with-arch=x86_64,i386 \
-    --with-openssl-dir=/usr/local/opt/openssl" \
-    rbenv install $RUBY_VERSION
-> rbenv global $RUBY_VERSION
-> gem install bundler
-> pushd ~/src/yakg
-> bundle install --path vendor
-> popd
-> done
+  > CC="xcrun cc" CPP="xcrun cc -E" \
+      RUBY_CONFIGURE_OPTS="--with-arch=x86_64,i386 \
+      --with-openssl-dir=/usr/local/opt/openssl" \
+      rbenv install $RUBY_VERSION
+  > rbenv global $RUBY_VERSION
+  > gem install bundler
+  > bundle install --path vendor
+  > done
+$ cd vendor/gems
+$ for ABI in 2.1.0 2.2.0; do
+  > mkdir -p ${ABI}/gems ${ABI}/specifications
+  > cp ../ruby/$ABI/specifications/{corefoundation,ffi}-* ${ABI}/specifications
+  > rsync -avP ../ruby/${ABI}/gems/{corefoundation,ffi}-* ${ABI}/gems
+  > pushd ${ABI}/gems/ffi-*
+  > mv ext/ffi_c/ffi_c.bundle lib
+  > popd
+  > rm -rf ${ABI}/gems/{corefoundation,ffi}-*/{ext,spec}
+  > done
 $ mv versions clean_universal_builds
-$ mv stash_versions versions 
-
-
-```
-$ rbenv global system
-$ ./installit.sh
-$ CC="xcrun cc" CPP="xcrun cc -E" \
-  RUBY_CONFIGURE_OPTS="--with-arch=x86_64,i386" \
-  rbenv install 1.9.3-p392
-... stuff happens ...
-$ rbenv global 1.9.3-p392
-$ ./installit.sh
-# this sucks - Mountain Lion ships with openssl 0.9.8, which is both
-# old and doesn't work with ruby 2.0.0
-$ brew install openssl
-# and then we have to recompile it as a fat binary to make
-# 2.0.0 compile-able as a fat binary...
-$ ./build_openssl_dylib.sh
-$ CC="xcrun cc" CPP="xcrun cc -E" \
-  RUBY_CONFIGURE_OPTS="--with-arch=x86_64,i386 --with-openssl-dir=/usr/local/opt/openssl" \
-  rbenv install 2.0.0-p0
-... stuff happens ...
-$ rbenv global 2.0.0-p0
-$ ./installit.sh
+$ mv stash_versions versions
 ```
