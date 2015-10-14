@@ -8,10 +8,8 @@ Yakg.DEFAULT_SERVICE_NAME = "yakg-rspec"
 require 'securerandom'
 
 RSpec.configure do |config|
-  config.color_enabled = true
-
-  # Use color not only in STDOUT but also in pagers and files
   config.tty = true
+  config.raise_errors_for_deprecations!
 
   # Use the specified formatter
   #config.formatter = :documentation # :progress, :html, :textmate
