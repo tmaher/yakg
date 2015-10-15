@@ -11,6 +11,6 @@ Gem::Specification.new do |s|
   s.files = `git ls-files`.split("\n")
   s.homepage = "https://github.com/tmaher/yakg"
   s.add_development_dependency "woof_util", '~>0'
-  s.add_development_dependency "rake", '~>2'
+  s.add_development_dependency "rake", '~>10'
   s.add_development_dependency "rspec", '~>3'
 end
