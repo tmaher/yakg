@@ -1,12 +1,12 @@
 class Yakg
   module Misc
     def self.get_abi
-      if RUBY_VERSION.match /^1.8/
+      if RUBY_VERSION.match /^1\.8/
         "1.8"
-      elsif RUBY_VERSION.match /^1.9/
+      elsif RUBY_VERSION.match /^1\.9/
         "1.9.1"
-      elsif RUBY_VERSION.match /^2.0/
-        "2.0.0"
+      elsif RUBY_VERSION.match /^2\./
+        RUBY_VERSION.sub /\A(\d\.\d).*\z/, '\1\.0'
       end
     end
 
@@ -22,7 +22,7 @@ class Yakg
   @@DEFAULT_SERVICE_NAME = "ruby-yakg-gem"
   def self.DEFAULT_SERVICE_NAME= x; @@DEFAULT_SERVICE_NAME = x; end
   def self.DEFAULT_SERVICE_NAME ; @@DEFAULT_SERVICE_NAME; end
-  
+
   def self.set acct, value, svc=@@DEFAULT_SERVICE_NAME
     Backend.set acct, value, svc
   end
@@ -38,5 +38,5 @@ class Yakg
   def self.list svc=@@DEFAULT_SERVICE_NAME
     Backend.list svc
   end
-  
+
 end

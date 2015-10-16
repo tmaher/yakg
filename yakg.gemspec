@@ -10,7 +10,7 @@ Gem::Specification.new do |s|
   s.license = "Apache 2.0"
   s.files = `git ls-files`.split("\n")
   s.homepage = "https://github.com/tmaher/yakg"
-  s.add_development_dependency "woof_util"
-  s.add_development_dependency "rake"
-  s.add_development_dependency "rspec"
+  s.add_development_dependency "woof_util", '~>0'
+  s.add_development_dependency "rake", '~>10'
+  s.add_development_dependency "rspec", '~>3'
 end
