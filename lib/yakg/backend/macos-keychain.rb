@@ -17,7 +17,8 @@ class Yakg
 
       extend FFI::Library
       NULL = FFI::Pointer::NULL
-      ffi_lib(FFI::Library::LIBC,
+      # should be FFI::Library::LIBC, but https://github.com/ffi/ffi/issues/461
+      ffi_lib("/usr/lib/libc.dylib",
               framework(:CoreFoundation),
               framework(:Security))
 
@@ -63,7 +64,7 @@ class Yakg
         raise KeychainError.new(error_message code) if code != 0
         code
       end
-      
+
       def delete acct, svc
         pw_length = FFI::MemoryPointer.new :uint32
         pw_val = FFI::MemoryPointer.new :pointer
@@ -124,7 +125,7 @@ class Yakg
       def s2i s
         s.unpack("N")[0].to_i
       end
-      
+
       enum :SecItemAttr, [:kSecCreatiofnDateItemAttr, s2i('cdat'),
                           :kSecModDateItemAttr, s2i('mdat'),
                           :kSecDescriptionItemAttr, s2i('desc'),
@@ -154,7 +155,7 @@ class Yakg
                           :kSecCrlEncoding, s2i('crnc'),
                           :kSecAlias, s2i('alis')
                          ]
-      
+
       class SecKeychainAttribute < FFI::Struct
         layout(:tag, :SecItemAttr,
                :length, :uint32,
@@ -166,7 +167,7 @@ class Yakg
                :tag, :pointer,
                :format, :pointer)
       end
-      
+
       def list svc
         search_ref = FFI::MemoryPointer.new :pointer
         found_item = FFI::MemoryPointer.new :pointer
@@ -179,7 +180,7 @@ class Yakg
         acct_info[:tag].write_array_of_int [s2i("acct")]
         acct_info[:format] = FFI::MemoryPointer.new :uint32
         acct_info[:format].write_array_of_int [0]
-        
+
         svc_attr[:tag] = s2i "svce"
         svc_attr[:length] = svc.length
         svc_attr[:data] = FFI::MemoryPointer.from_string(svc)
@@ -187,7 +188,7 @@ class Yakg
         search_attr_list = SecKeychainAttributeList.new
         search_attr_list[:count] = 1
         search_attr_list[:attr] = svc_attr.pointer
-        
+
         raise_error? SecKeychainSearchCreateFromAttributes(NULL,
                                                            s2i("genp"),
                                                            search_attr_list,
@@ -218,10 +219,10 @@ class Yakg
         raise_error? SecKeychainItemFreeAttributesAndData(found_attr_list.read_pointer,
                                                           NULL)
         CFRelease search_ref.read_pointer
-        
+
         acct_names
       end
 
-    end  
+    end
   end
 end
