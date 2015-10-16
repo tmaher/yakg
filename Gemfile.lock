@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    yakg (0.0.11)
+    yakg (0.1.0)
 
 GEM
   remote: https://rubygems.org/
@@ -35,12 +35,12 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  corefoundation
-  ffi (~> 1.9.10)
-  netrc
-  rake
-  rspec
-  woof_util
+  corefoundation (~> 0.2)
+  ffi (~> 1.9)
+  netrc (~> 0.10)
+  rake (~> 10)
+  rspec (~> 3)
+  woof_util (~> 0)
   yakg!
 
 BUNDLED WITH
