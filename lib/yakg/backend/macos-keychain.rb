@@ -1,7 +1,10 @@
 # https://developer.apple.com/library/mac/#documentation/security/Reference/keychainservices/Reference/reference.html
 
-Gem.paths =
-  {"GEM_PATH" => "#{Gem.path.join(':')}:#{Yakg::Misc::VENDOR_GEM_DIR}"}
+["gems/ffi-*/lib",
+  "extensions/#{RUBY_PLATFORM}/#{Yakg::Misc.get_abi}*/ffi-*",
+  "gems/corefoundation-*/lib"
+].each { |x| $LOAD_PATH << Dir.glob("#{Yakg::Misc::VENDOR_GEM_DIR}/#{x}").pop }
+
 require "ffi"
 require "corefoundation"
 
