@@ -1,6 +1,7 @@
 # https://developer.apple.com/library/mac/#documentation/security/Reference/keychainservices/Reference/reference.html
 
-Gem.use_paths(nil, Gem.path << Yakg::Misc::VENDOR_GEM_DIR)
+Gem.paths =
+  {"GEM_PATH" => "#{Gem.path.join(':')}:#{Yakg::Misc::VENDOR_GEM_DIR}"}
 require "ffi"
 require "corefoundation"
 
