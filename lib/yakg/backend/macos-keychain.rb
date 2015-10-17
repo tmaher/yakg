@@ -1,9 +1,12 @@
 # https://developer.apple.com/library/mac/#documentation/security/Reference/keychainservices/Reference/reference.html
 
 ["gems/ffi-*/lib",
+  "gems/corefoundation-*/lib",
   "extensions/#{RUBY_PLATFORM}/#{Yakg::Misc.get_abi}*/ffi-*",
-  "gems/corefoundation-*/lib"
-].each { |x| $LOAD_PATH << Dir.glob("#{Yakg::Misc::VENDOR_GEM_DIR}/#{x}").pop }
+].each do |x|
+  p = Dir.glob("#{Yakg::Misc::VENDOR_GEM_DIR}/#{x}").pop
+  $LOAD_PATH << p unless p.nil?
+end
 
 require "ffi"
 require "corefoundation"
