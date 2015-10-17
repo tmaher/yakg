@@ -6,7 +6,7 @@ class Yakg
       elsif RUBY_VERSION.match /^1\.9/
         "1.9.1"
       elsif RUBY_VERSION.match /^2\./
-        RUBY_VERSION.sub /\A(\d\.\d).*\z/, '\1\.0'
+        RUBY_VERSION.sub /\A(\d\.\d).*\z/, '\1.0'
       end
     end
 
