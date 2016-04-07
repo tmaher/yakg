@@ -6,7 +6,7 @@ class Yakg
     module Win32DPAPI
 
       REG_KEY_PREFIX="Software\\Yakg\\"
-      
+
       def set acct, value, svc
         Win32::Registry::HKEY_CURRENT_USER.create("#{REG_KEY_PREFIX}\\#{svc}") do |reg|
           reg.write_bin acct, DPAPI.encrypt(value).data
@@ -38,7 +38,7 @@ class Yakg
 
         class EncryptError < StandardError; end
         class DecryptError < StandardError; end
-        
+
 =begin
         typedef struct _CRYPTOAPI_BLOB {
             DWORD cbData;
@@ -54,7 +54,7 @@ class Yakg
             super nil
             self.data = blob unless blob.nil?
           end
-          
+
           def data
             self[:pbData].get_bytes(0, self[:cbData])
           end
@@ -74,7 +74,7 @@ class Yakg
         AUDIT = 0x10
         NO_RECOVERY = 0x20
         VERIFY_PROTECTION = 0x40
-        
+
 =begin
       BOOL WINAPI CryptProtectData(
                      _In_      DATA_BLOB *pDataIn,
@@ -86,7 +86,7 @@ class Yakg
                      _Out_     DATA_BLOB *pDataOut
        );
 =end
-        
+
         attach_function :CryptProtectData,
         [:pointer, :string, :pointer, :pointer, :pointer, :uint32, :pointer],
         :int32
@@ -98,19 +98,17 @@ class Yakg
           if(plaintext.class == "String") and plaintext.respond_to? "encoding"
             desc = FFI::MemoryPointer.from_string(plaintext.encoding.to_s)
           end
-          
-          CryptProtectData(DataBlob.new plaintext,
+
+          raise EncryptError unless CryptProtectData(DataBlob.new plaintext,
                            desc,
                            entropy.nil? ? nil : DataBlob.new(entropy),
                            nil,
                            nil,
-                           flags.reduce(0, :|)
-                           ciphertext_blob) or
-            raise EncryptErorr
-          
+                           flags.reduce(0, :|),
+                           ciphertext_blob)
           ciphertext_blob.data
         end
-        
+
 =begin
       BOOL WINAPI CryptUnprotectData(
                      _In_        DATA_BLOB *pDataIn,
@@ -130,14 +128,13 @@ class Yakg
           plaintext_blob  = DataBlob.new
           desc = FFI::MemoryPointer.new(:pointer, 256)
 
-          CryptUnprotectData(DataBlob.new ciphertext,
+          raise DecryptError unless CryptUnprotectData(DataBlob.new ciphertext,
                              desc,
-                             DataBlob.new entropy,
+                             DataBlob.new(entropy),
                              nil,
                              nil,
                              flags.reduce(0, :|),
-                             plaintext_blob) or
-            raise DecryptError
+                             plaintext_blob)
 
           encoding = desc.read_pointer.nil? ? 'BINARY' : desc.read_pointer.read_string
 
