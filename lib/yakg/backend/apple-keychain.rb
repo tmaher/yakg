@@ -35,7 +35,7 @@ module AppleSecKeychain
   extern 'OSStatus SecKeychainItemFreeContent(void *, void *)'
   extern 'OSStatus SecKeychainItemModifyContent(SecKeychainItemRef, const void *, UInt32, const void *)'
 
-  def self.item_delete account, service=DEFAULT_SERVICE
+  def self.delete_generic_password account, service=DEFAULT_SERVICE
     pw = nil
     pw_length_ptr = Fiddle::Pointer.malloc(Fiddle::SIZEOF_INT)
     pw_ptr = Fiddle::Pointer.malloc(Fiddle::SIZEOF_VOIDP)
@@ -84,28 +84,19 @@ module AppleSecKeychain
                                                  account.length, account,
                                                  pw_length_ptr, pw_ptr,
                                                  item_ref_ptr)
-    if retval.zero?
-      puts "item ref %#{item_ref_ptr.to_i}%"
-      self.SecKeychainItemModifyContent(item_ref_ptr.ref, NULL,
-                                        pw.length, pw)
-      self.SecKeychainItemFreeContent(NULL, pw_ptr.to_i)
-      puts "frell"
-      exit 7
-      #self.CFRelease item_ref_ptr.to_i
-    else
-      self.SecKeychainAddGenericPassword(NULL,
-                                         service.length, service,
-                                         account.length, account,
-                                         pw.length, pw, NULL)
-    end
-    #self.SecKeychainItemFreeContent(NULL, pw_ptr.to_i)
-    #Fiddle.free pw_length_ptr.to_i
+    #if retval.zero?
+      #self.SecKeychainItemDelete item_ref_ptr.ref
+      #self.CFRelease item_ref_ptr.ref
+    #end
 
+    self.SecKeychainItemFreeContent NULL, pw_ptr.to_i
+    Fiddle.free pw_length_ptr.to_i
+
+    self.SecKeychainAddGenericPassword(NULL,
+                                       service.length, service,
+                                       account.length, account,
+                                       pw.length, pw, NULL)
     true
-  end
-
-  def self.delete account, service=DEFAULT_SERVICE
-    nil
   end
 end
 
@@ -114,12 +105,13 @@ class Yakg
     def get acct, svc
       AppleSecKeychain.find_generic_password acct, svc
     end
+
     def set acct, value, svc
-      #AppleSecKeychain.add_generic_password value, acct, svc
-      true
+      AppleSecKeychain.add_generic_password value, acct, svc
     end
+
     def delete acct, svc
-      AppleSecKeychain.delete acct, svc
+      AppleSecKeychain.delete_generic_password acct, svc
     end
   end
 end
