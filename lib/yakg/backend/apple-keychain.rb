@@ -46,10 +46,14 @@ module AppleSecKeychain
                                                  account.length, account,
                                                  pw_length_ptr, pw_ptr,
                                                  item_ref_ptr)
+    return nil unless retval.zero?
+
+    item_deref = item_ref_ptr.to_str.unpack('Q')[0]
+
+    self.SecKeychainItemDelete item_deref
+    self.CFRelease item_deref
     Fiddle.free pw_length_ptr.to_i
     self.SecKeychainItemFreeContent(NULL, pw_ptr.to_i)
-    self.SecKeychainItemDelete item_ref_ptr.ref
-    self.CFRelease item_ref_ptr.ref
   end
 
   def self.find_generic_password account, service=DEFAULT_SERVICE
@@ -84,10 +88,11 @@ module AppleSecKeychain
                                                  account.length, account,
                                                  pw_length_ptr, pw_ptr,
                                                  item_ref_ptr)
-    #if retval.zero?
-      #self.SecKeychainItemDelete item_ref_ptr.ref
-      #self.CFRelease item_ref_ptr.ref
-    #end
+    if retval.zero?
+      item_deref = item_ref_ptr.to_str.unpack('Q')[0]
+      self.SecKeychainItemDelete item_deref
+      #self.CFRelease item_deref
+    end
 
     self.SecKeychainItemFreeContent NULL, pw_ptr.to_i
     Fiddle.free pw_length_ptr.to_i
