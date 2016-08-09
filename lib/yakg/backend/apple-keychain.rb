@@ -4,6 +4,10 @@ require 'fiddle/import'
 #https://developer.apple.com/library/mac/#documentation/security/Reference/keychainservices/Reference/reference.html
 module AppleSecKeychain
   extend Fiddle::Importer
+
+  #dlload '/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation'
+  #extern 'void CFRelease(void *)'
+
   dlload '/System/Library/Frameworks/Security.framework/Security'
   NULL=Fiddle::Pointer.new(0).freeze
 
@@ -15,12 +19,20 @@ module AppleSecKeychain
     'SecKeychainAttrType' => 'unsigned int',
     'OSStatus' => 'int',
     'UInt32' => 'unsigned int',
-    'SecKeychainItemRef' => 'void *'
+    'SecKeychainItemRef' => 'void *',
+    'SecKeychainRef' => 'void *'
   }.freeze
   DEFAULT_SERVICE='ruby-yakg-gem'.freeze
   TYPEDEFS.each { |k,v| typealias k, v }
+
+
   extern 'OSStatus SecKeychainFindGenericPassword(CFTypeRef, UInt32, const char *, UInt32, const char *, UInt32 *, void **, SecKeychainItemRef *)'
+
+  extern 'OSStatus SecKeychainAddGenericPassword(SecKeychainRef, UInt32, const char *, UInt32, const char *, UInt32, const void *, SecKeychainItemRef *)'
+
   extern 'OSStatus SecKeychainItemFreeContent(void *, void *)'
+  extern 'OSStatus SecKeychainItemModifyContent(SecKeychainItemRef, const void *, UInt32, const void *)'
+
 
 
   def self.find_generic_password account, service=DEFAULT_SERVICE
@@ -46,9 +58,32 @@ module AppleSecKeychain
     pw
   end
 
-  def self.add_generic_password value, account, service=DEFAULT_SERVICE
-    nil
+  def self.add_generic_password pw, account, service=DEFAULT_SERVICE
+    pw_length_ptr = Fiddle::Pointer.malloc(Fiddle::SIZEOF_INT)
+    pw_ptr = Fiddle::Pointer.malloc(Fiddle::SIZEOF_VOIDP)
+    item_ref_ptr = Fiddle::Pointer.malloc(Fiddle::SIZEOF_VOIDP)
+    retval = self.SecKeychainFindGenericPassword(NULL,
+                                                 service.length, service,
+                                                 account.length, account,
+                                                 pw_length_ptr, pw_ptr,
+                                                 item_ref_ptr)
+    if retval.zero?
+      self.SecKeychainItemFreeContent(NULL, pw_ptr.to_i)
+      self.SecKeychainItemModifyContent(item_ref_ptr.to_i, NULL,
+                                        pw.length, pw)
+      #self.CFRelease item_ref_ptr.to_i
+    else
+      self.SecKeychainAddGenericPassword(NULL,
+                                         service.length, service,
+                                         account.length, account,
+                                         pw.length, pw, NULL)
+    end
+    self.SecKeychainItemFreeContent(NULL, pw_ptr.to_i)
+    Fiddle.free pw_length_ptr.to_i
+
+    true
   end
+
   def self.delete account, service=DEFAULT_SERVICE
     nil
   end
