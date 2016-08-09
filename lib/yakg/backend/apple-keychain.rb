@@ -5,8 +5,8 @@ require 'fiddle/import'
 module AppleSecKeychain
   extend Fiddle::Importer
 
-  #dlload '/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation'
-  #extern 'void CFRelease(void *)'
+  dlload '/System/Library/Frameworks/CoreFoundation.framework/CoreFoundation'
+  extern 'void CFRelease(void *)'
 
   dlload '/System/Library/Frameworks/Security.framework/Security'
   NULL=Fiddle::Pointer.new(0).freeze
@@ -30,10 +30,27 @@ module AppleSecKeychain
 
   extern 'OSStatus SecKeychainAddGenericPassword(SecKeychainRef, UInt32, const char *, UInt32, const char *, UInt32, const void *, SecKeychainItemRef *)'
 
+  extern 'OSStatus SecKeychainItemDelete(SecKeychainItemRef)'
+
   extern 'OSStatus SecKeychainItemFreeContent(void *, void *)'
   extern 'OSStatus SecKeychainItemModifyContent(SecKeychainItemRef, const void *, UInt32, const void *)'
 
+  def self.item_delete account, service=DEFAULT_SERVICE
+    pw = nil
+    pw_length_ptr = Fiddle::Pointer.malloc(Fiddle::SIZEOF_INT)
+    pw_ptr = Fiddle::Pointer.malloc(Fiddle::SIZEOF_VOIDP)
+    item_ref_ptr = Fiddle::Pointer.malloc(Fiddle::SIZEOF_VOIDP)
 
+    retval = self.SecKeychainFindGenericPassword(NULL,
+                                                 service.length, service,
+                                                 account.length, account,
+                                                 pw_length_ptr, pw_ptr,
+                                                 item_ref_ptr)
+    Fiddle.free pw_length_ptr.to_i
+    self.SecKeychainItemFreeContent(NULL, pw_ptr.to_i)
+    self.SecKeychainItemDelete item_ref_ptr.ref
+    self.CFRelease item_ref_ptr.ref
+  end
 
   def self.find_generic_password account, service=DEFAULT_SERVICE
     pw = nil
@@ -68,9 +85,12 @@ module AppleSecKeychain
                                                  pw_length_ptr, pw_ptr,
                                                  item_ref_ptr)
     if retval.zero?
-      self.SecKeychainItemFreeContent(NULL, pw_ptr.to_i)
-      self.SecKeychainItemModifyContent(item_ref_ptr.to_i, NULL,
+      puts "item ref %#{item_ref_ptr.to_i}%"
+      self.SecKeychainItemModifyContent(item_ref_ptr.ref, NULL,
                                         pw.length, pw)
+      self.SecKeychainItemFreeContent(NULL, pw_ptr.to_i)
+      puts "frell"
+      exit 7
       #self.CFRelease item_ref_ptr.to_i
     else
       self.SecKeychainAddGenericPassword(NULL,
@@ -78,8 +98,8 @@ module AppleSecKeychain
                                          account.length, account,
                                          pw.length, pw, NULL)
     end
-    self.SecKeychainItemFreeContent(NULL, pw_ptr.to_i)
-    Fiddle.free pw_length_ptr.to_i
+    #self.SecKeychainItemFreeContent(NULL, pw_ptr.to_i)
+    #Fiddle.free pw_length_ptr.to_i
 
     true
   end
@@ -95,7 +115,8 @@ class Yakg
       AppleSecKeychain.find_generic_password acct, svc
     end
     def set acct, value, svc
-      AppleSecKeychain.add_generic_password value, acct, svc
+      #AppleSecKeychain.add_generic_password value, acct, svc
+      true
     end
     def delete acct, svc
       AppleSecKeychain.delete acct, svc
