@@ -1,42 +1,60 @@
-class Yakg
-  #https://developer.apple.com/library/mac/#documentation/security/Reference/keychainservices/Reference/reference.html
-  module Backend::AppleKeychain
-    require 'fiddle'
-    extend Fiddle::Importer
+require 'fiddle'
+require 'fiddle/import'
 
-    NULL=Fiddle::Pointer.new(0).freeze
-    TYPE_ALIASES={
-      'CFTypeRef'           => 'const void *',
-      'FourCharCode'        => 'unsigned int',
-      'SecKeychainAttrType' => 'unsigned int',
-      'OSStatus'            => 'int',
-      'UInt32'              => 'unsigned int',
-      'SecKeychainItemRef'  => 'void *'
-    }.freeze
-    TYPE_ALIASES.each { |k,v| typealias k, v }
+#https://developer.apple.com/library/mac/#documentation/security/Reference/keychainservices/Reference/reference.html
+module AppleSecKeychain
+  extend Fiddle::Importer
+  dlload '/System/Library/Frameworks/Security.framework/Security'
+  NULL=Fiddle::Pointer.new(0).freeze
 
-    extern 'OSStatus SecKeychainFindGenericPassword(CFTypeRef, UInt32, const char *, UInt32, const char *, UInt32 *, void **, SecKeychainItemRef *)'
-  end
+  # int is 32-bits, even in macOS 64-bit
+  # https://developer.apple.com/library/mac/documentation/Darwin/Conceptual/64bitPorting/transition/transition.html
+  TYPEDEFS={
+    'CFTypeRef' => 'const void *',
+    'FourCharCode' => 'unsigned int',
+    'SecKeychainAttrType' => 'unsigned int',
+    'OSStatus' => 'int',
+    'UInt32' => 'unsigned int',
+    'SecKeychainItemRef' => 'void *'
+  }.freeze
+  DEFAULT_SERVICE='ruby-yakg-gem'.freeze
+  TYPEDEFS.each { |k,v| typealias k, v }
+  extern 'OSStatus SecKeychainFindGenericPassword(CFTypeRef, UInt32, const char *, UInt32, const char *, UInt32 *, void **, SecKeychainItemRef *)'
+  extern 'OSStatus SecKeychainItemFreeContent(void *, void *)'
 
-  def get account, service
-    pw_len_ptr = Fiddle::Pointer.malloc(Fiddle::SIZEOF_INT)
-    pw_ptr = Fiddle::Pointer.malloc(Fiddle::SIZEOF_VOIDP)
-    #item_ref_ptr = Fiddle::Pointer.malloc(Fiddle::SIZEOF_VOIDP)
-    self.SecKeychainFindGenericPassword(NULL, service.length, service,
-                                        account.length, account,
-                                        pw_len_ptr, pw_ptr, NULL)
 
-    pw_length = uint32p_to_int(pw_len_ptr)
-    pw = voidpp_to_str(pw_ptr, pw_length)
+  def self.find_generic_password account, service=DEFAULT_SERVICE
+    pw = nil
+    begin
+      pw_length_ptr = Fiddle::Pointer.malloc(Fiddle::SIZEOF_INT)
+      pw_ptr = Fiddle::Pointer.malloc(Fiddle::SIZEOF_VOIDP)
+      retval = self.SecKeychainFindGenericPassword(NULL,
+                                                   service.length, service,
+                                                   account.length, account,
+                                                   pw_length_ptr, pw_ptr, NULL)
+      return pw unless retval.zero?
+
+      pw_length = pw_length_ptr.to_str.unpack('I')[0]
+      pw_unpack = pw_ptr.to_str.unpack('Q')[0]
+      pw = Fiddle::Pointer.new(pw_unpack, Fiddle::TYPE_VOIDP)
+                          .to_s(pw_length)
+    ensure
+      self.SecKeychainItemFreeContent(NULL, pw_ptr.to_i)
+      Fiddle.free pw_length_ptr.to_i
+    end
+
     pw
   end
 
-  def uint32p_to_int ptr
-    ptr.to_str.unpack('I')[0]
-  end
+  def self.add_generic_password value, account, service=DEFAULT_SERVICE
 
-  def voidpp_to_str ptr, length
-    Fiddle::Pointer.new(ptr.to_str.unpack('Q')[0],
-                        Fiddle::TYPE_VOIDP).to_s(length)
+  end
+end
+
+class Yakg
+  module Backend::AppleKeychain
+    def get acct, svc
+      AppleSecKeychain.find_generic_password acct, svc
+    end
   end
 end

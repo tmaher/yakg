@@ -1,7 +1,7 @@
 PATH
   remote: .
   specs:
-    yakg (0.1.0)
+    yakg (0.1.11)
 
 GEM
   remote: https://rubygems.org/
@@ -44,4 +44,4 @@ DEPENDENCIES
   yakg!
 
 BUNDLED WITH
-   1.10.6
+   1.12.5

@@ -1,8 +1,8 @@
 class Yakg
   module Backend
     if RUBY_PLATFORM.match("-darwin")
-      require "yakg/backend/macos-keychain"
-      extend Yakg::Backend::MacosKeychain
+      require "yakg/backend/apple-keychain"
+      extend Yakg::Backend::AppleKeychain
     elsif RUBY_PLATFORM.match("win32")
       require "yakg/backend/win32-dpapi"
       extend Yakg::Backend::Win32DPAPI
