@@ -47,7 +47,10 @@ module AppleSecKeychain
   end
 
   def self.add_generic_password value, account, service=DEFAULT_SERVICE
-
+    nil
+  end
+  def self.delete account, service=DEFAULT_SERVICE
+    nil
   end
 end
 
@@ -55,6 +58,12 @@ class Yakg
   module Backend::AppleKeychain
     def get acct, svc
       AppleSecKeychain.find_generic_password acct, svc
+    end
+    def set acct, value, svc
+      AppleSecKeychain.add_generic_password value, acct, svc
+    end
+    def delete acct, svc
+      AppleSecKeychain.delete acct, svc
     end
   end
 end
