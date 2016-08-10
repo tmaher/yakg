@@ -15,6 +15,7 @@ module AppleSecKeychain
   # https://developer.apple.com/library/mac/documentation/Darwin/Conceptual/64bitPorting/transition/transition.html
   TYPEDEFS={
     'CFTypeRef' => 'const void *',
+    'CFStringRef' => 'void *',
     'FourCharCode' => 'unsigned int',
     'SecKeychainAttrType' => 'unsigned int',
     'OSStatus' => 'int',
@@ -33,6 +34,8 @@ module AppleSecKeychain
   extern 'OSStatus SecKeychainItemDelete(SecKeychainItemRef)'
 
   extern 'OSStatus SecKeychainItemFreeContent(void *, void *)'
+
+  extern 'CFStringRef SecCopyErrorMessageString(OSStatus, void *)'
   extern 'OSStatus SecKeychainItemModifyContent(SecKeychainItemRef, const void *, UInt32, const void *)'
 
   def self.delete_generic_password account, service=DEFAULT_SERVICE
