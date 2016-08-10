@@ -1,5 +1,6 @@
 require 'rubygems'
 require 'bundler/setup'
+require 'fiddle'
 
 $: << File.dirname(__FILE__) + '/../lib'
 
